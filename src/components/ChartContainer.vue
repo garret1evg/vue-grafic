@@ -1,15 +1,15 @@
 <template>
     <div class="container">
+        <nav>
 
-        <select name="Period" @change="onChange($event)">
-            <option value="m1">1 day</option>
+            <ul>
+                <li class="item"  value="m1"><a @click="onChange($event)" href = "#" >1D</a></li>
+                <li class="item"  value="m15"><a @click="onChange($event)" href = "#">1W</a></li>
+                <li class="item"  value="h1"><a @click="onChange($event)" href = "#">1M</a></li>
+                <li class="item"  value="h12"><a @click="onChange($event)" href = "#">1Y</a></li>
+            </ul>
+        </nav>
 
-            <option value="m15">1 week</option>
-
-            <option value="h1">1 month</option>
-
-            <option value="h12">1 year</option>
-        </select>
 
         <canvas ref="canvas"></canvas>
     </div>
@@ -20,14 +20,32 @@
     import axios from 'axios';
     import numeral from "numeral";
 
+
     const options ={
+        legend: {
+            display: false
+        },
         scales: {
+
             yAxes: [{
+                position : 'right',
                 ticks: {
                     callback: value => numeral(value).format('$0,0')
+                },gridLines:{
+                    display: false
+                }
+            }],
+            xAxes: [{
+                gridLines:{
+                    display: false
                 }
             }]
+
+
+
+
         }
+
     }
 
     export default {
@@ -35,21 +53,22 @@
         extends: Line,
         methods: {
             onChange(event) {
-                axios.get("https://api.coincap.io/v2/assets/bitcoin/history?interval="+event.target.value)
+                //console.log(event)
+                axios.get("https://api.coincap.io/v2/assets/bitcoin/history?interval="+event.path[1]._value)
                     .then(res => {
-                        console.log(res.data.data)
+
                         this.renderChart({
                                 labels: (res.data.data.map(c => c.date)),
                                 datasets: [{
                                     label: 'Bitcoin price',
                                     data: res.data.data.map(c => c.priceUsd),
-                                    borderColor: 'rgba(50, 115, 220, 0.5)',
-                                    backgroundColor: 'rgba(50, 115, 220, 0.1)',
+                                    borderColor: '#40E0D0',
+                                    backgroundColor: 'rgba(0, 0, 0, 0)',
                                     pointBorderColor: 'transparent',
                                     pointBackgroundColor: 'transparent',
                                     pointHoverBorderColor: 'blue',
                                     pointHoverBackgroundColor: 'red',
-                                    borderWidth: 1
+                                    borderWidth: 2
                                 }]
                             },options
                         )
@@ -57,21 +76,21 @@
         }},
 
         mounted () {
-            axios.get("https://api.coincap.io/v2/assets/bitcoin/history?interval=m15")
+            axios.get("https://api.coincap.io/v2/assets/bitcoin/history?interval=m1")
                 .then(res => {
-                    console.log(res.data.data)
+
                     this.renderChart({
                         labels: (res.data.data.map(c => c.date)),
                         datasets: [{
                             label: 'Bitcoin price',
                             data: res.data.data.map(c => c.priceUsd),
-                            borderColor: 'rgba(50, 115, 220, 0.5)',
-                            backgroundColor: 'rgba(50, 115, 220, 0.1)',
+                            borderColor: '#40E0D0',
+                            backgroundColor: 'rgba(0, 0, 0, 0)',
                             pointBorderColor: 'transparent',
                             pointBackgroundColor: 'transparent',
                             pointHoverBorderColor: 'blue',
                             pointHoverBackgroundColor: 'red',
-                            borderWidth: 1
+                            borderWidth: 2
                         }]
                     },options
                     )
@@ -79,10 +98,62 @@
 
         }
     }
+
 </script>
 
 <style>
-    .container {
-        width: 80%;
+    nav{
+        float:right;
     }
+    ol, ul {
+        list-style: none;
+    }
+    li {
+        display: inline-block;
+        padding: 20px 0 20px;
+        vertical-align: middle;
+    }
+    a:hover, a:focus, a:active {
+        color: #000;
+        text-decoration: none;
+    }
+    a {
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+        text-decoration: none;
+        transition: color 0.1s, background-color 0.1s;
+    }
+    a {
+        position: relative;
+        display: block;
+        padding: 16px 0;
+        margin: 0 12px;
+        letter-spacing: 1px;
+        font-size: 18px;
+        line-height: 16px;
+        font-weight: 900;
+        text-transform: uppercase;
+        transition: color 0.1s,background-color 0.1s,padding 0.2s ease-in;
+        color: #666;
+    }
+    a::before {
+        content: '';
+        display: block;
+        position: absolute;
+        bottom: 3px;
+        left: 0;
+        height: 3px;
+        width: 100%;
+        background-color: #40E0D0;
+        transform-origin: right top;
+        transform: scale(0, 1);
+        transition: color 0.1s,transform 0.2s ease-out;
+    }
+    a:active::before {
+        background-color: #666;
+    }
+    a:hover::before, a:focus::before {
+        transform-origin: left top;
+        transform: scale(1, 1);
+    }
+
 </style>
